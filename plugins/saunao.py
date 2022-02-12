@@ -1,9 +1,4 @@
-from email import message
-import aiocqhttp
-from nonebot import CommandSession, MessageSegment
 import nonebot
-import re
-import json
 from plugins.utils import *
 
 APIKEY = 'f2cddb0d913ab5135c6f848e1fe0b8c1a2a61ded'
@@ -34,26 +29,27 @@ async def _(event):
         CQimg = getCQimgInMesg(str(event['message']))
         url = getImgUrlInCQ(CQimg)
         imginfo = saucenaoSearch(url, SAUCEURL)
+        if not imginfo :
+            await bot.send(event, "没有找到QAQ")
+            return
         for iter in imginfo:
             simp = iter['similarity']
             thum = iter['thumbnail']
+            creator = str(iter['creator'])
+            if creator[0] == '[':
+                creator = str(creator)[1:-1].strip()
+            ans = '作者：' + creator + "\n相似度：" + simp
             if iter['type'] == 'doujin':
                 eng_name = iter['eng_name']
                 jp_name = iter['jp_name']
-                creator = str(iter['creator'])[1:-1].strip()
                 print(creator)
-                ans = '作者：' + creator
                 if jp_name:
-                    ans += '\n 本子名称：' + jp_name.strip()
+                    ans += '\n本子名称：' + jp_name.strip()
                 else:
-                    ans += '\n 本子名称：' + eng_name.strip()
+                    ans += '\n本子名称：' + eng_name.strip()
                 ans += '\n' + "[CQ:image,file=" + thum + ",cache=1]"
                 await bot.send(event, ans)
             elif iter['type'] == 'pic':
-                continue
-                pid = iter['pid']
-                author = iter['author']
-                img = setuMesg(iter['url'])
-                ans = '作者：' + author + '\npixiv id：' + pid + '\n相似度：' + simp + '\n'
+                pixiv_url = iter['pixiv_url']
+                ans += '\n链接：'+ pixiv_url + "\n[CQ:image,file=" + thum + ",cache=1]"
                 await bot.send(event, ans)
-                await bot.send(event, img)

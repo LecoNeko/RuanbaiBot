@@ -1,13 +1,9 @@
-from tokenize import String
 from nonebot import on_command, CommandSession, MessageSegment
 import requests
 from random import choice
-from bs4 import BeautifulSoup
 import re
 
-from sklearn.feature_extraction import img_to_graph
-
-URL = r"https://api.lolicon.app/setu/v2?"
+SETUAPI = r"https://api.lolicon.app/setu/v2?"
 HEADER = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
 }
@@ -29,7 +25,7 @@ def getSetuInfo(keyword: str):
         keyword = tmp
     keyword = keyword.split('&amp;')
     # print(type(keyword))
-    url = URL
+    url = SETUAPI
     url = url + 'r18=' + str(r18) + '&'
     last = 0
     for iter in keyword:
@@ -60,8 +56,13 @@ def getSetuInfo(keyword: str):
     return [ans, js['data'][0]['urls']['original'].replace('cat', 're', 1)]
 
 
-def pidGetCatUrl(pid):
-    pass
+def pidGetPixivurl(pid):
+    '''
+    用pixivid拼接URL
+    '''
+    if not pid:
+        return None
+    return "https://pixiv.net/i/" + str(pid)
 
 def setuMesg(setu_url: str):
     '''
@@ -102,6 +103,12 @@ def getImgUrlInCQ(CQ: list):
         ans.append(url)
     return ans
 
+def dealNone(dic: dict):
+    for key, value in dic.items():
+        if not value:
+            dic[key] = 'None'
+    return dic
+
 def saucenaoSearch(urllist: list, SAUCEURL: str):
     '''
     传入图片list及SAUCE已经拼接好参数的url进行图片检索
@@ -113,7 +120,7 @@ def saucenaoSearch(urllist: list, SAUCEURL: str):
     for img in urllist:
         #print("\n\n\n")
         try:
-            data = requests.get(SAUCEURL + img, timeout=5).json()
+            data = requests.get(SAUCEURL + img, timeout=7).json()
             #print(data["results"])
         except:
             return None
@@ -131,17 +138,20 @@ def saucenaoSearch(urllist: list, SAUCEURL: str):
                 tmp["similarity"] = similarity
                 tmp["thumbnail"] = thumbnail
                 tmp["index_name"] = data["header"]["index_name"]
-                tmp["url"] = choice(data["data"].get("ext_urls", ["None"]))
+                tmp["url"] = data["data"].get("ext_urls")
                 tmp["creator"] = data["data"].get('creator')
+                tmp['title'] = data['data'].get('title')
+                tmp['pixiv_url'] = pidGetPixivurl(data['data'].get('pixiv_id'))
                 tmp["eng_name"] = data["data"].get('eng_name')
                 tmp["jp_name"] = data["data"].get('jp_name')
                 tmp["type"] = "pic"
                 if tmp["eng_name"] or tmp["jp_name"]:
                     tmp["type"] = "doujin" 
+                tmp = dealNone(tmp)
                 info.append(tmp)
-    print("\n\n\n")
-    print(info)
-    print("\n\n\n")
+    #print("\n\n\n")
+    #print(info)
+    #print("\n\n\n")
     return info
 
         
