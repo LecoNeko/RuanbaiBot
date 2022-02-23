@@ -42,9 +42,9 @@ def getSetuInfo(keyword: str):
             url = url + i
             first = 0
 
-    print(url)
+    #print(url)
     try:
-        res = requests.get(url, timeout=5)
+        res = requests.get(url, timeout=15)
         js = res.json()
         pid = str(js['data'][0]['pid'])
         uid = str(js['data'][0]['uid'])
@@ -71,8 +71,8 @@ def setuMesg(setu_url: str):
     # pic
     # imgurl = js['data'][0]['urls']['original'].replace('cat', 're', 1)
     # await session.send("[CQ:image,file=" + imgurl + ",cache=1]")
-    # print(setu_url)
-    return MessageSegment.image(setu_url, timeout=114514)
+    print(setu_url)
+    return MessageSegment.image(setu_url)
     
 
 # saucenao
