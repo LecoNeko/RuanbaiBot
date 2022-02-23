@@ -9,4 +9,4 @@ if __name__ == '__main__':
     nonebot.load_plugins(
         os.path.join(os.path.dirname(__file__),'plugins'),
         'plugins')
-    nonebot.run()
+    nonebot.run()                                               
