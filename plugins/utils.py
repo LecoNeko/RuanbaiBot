@@ -9,8 +9,13 @@ HEADER = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
 }
 
+async def async_request(url):
+    async with httpx.AsyncClient() as client:
+        res = await client.get(url)
+    return res
+
 # setu
-async def getSetuInfo(keyword: str):
+async def getSetuInfo(keyword: str, R18flag: int):
     '''
     从消息中提取涩图tag并获取涩图的info
     '''
@@ -19,7 +24,8 @@ async def getSetuInfo(keyword: str):
     else:
         keyword = keyword[2:-2]
     tmp = re.sub('[Rr]18', '', keyword)
-    r18 = 1
+    r18 = R18flag
+
     if len(keyword) == len(tmp):
         r18 = 0
     else:
@@ -45,8 +51,7 @@ async def getSetuInfo(keyword: str):
 
     #print(url)
     try:
-        async with httpx.AsyncClient() as client:
-            res = await client.get(url=url)
+        res = await async_request(url=url)
         js = res.json()
         pid = str(js['data'][0]['pid'])
         uid = str(js['data'][0]['uid'])
@@ -55,7 +60,7 @@ async def getSetuInfo(keyword: str):
     except:
         return None
     ans = '作者：' + author + '\n链接：' + urlmsg
-    return [ans, js['data'][0]['urls']['original'].replace('cat', 're', 1)]
+    return [ans, js['data'][0]['urls']['original'].replace('cat', 're', 1), r18]
 
 
 def pidGetPixivurl(pid):
@@ -122,9 +127,7 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
     for img in urllist:
         print("\n\n\n")
         try:
-            print(SAUCEURL + img)
-            async with httpx.AsyncClient() as client:
-                data = await client.get(url= SAUCEURL + img)
+            data = await async_request(url= SAUCEURL + img)
             #data = requests.get(SAUCEURL + img, headers=HEADER).json()
             data = data.json()
             #print(data)

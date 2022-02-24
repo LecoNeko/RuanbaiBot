@@ -4,17 +4,13 @@ from plugins.utils import *
 APIKEY = 'f2cddb0d913ab5135c6f848e1fe0b8c1a2a61ded'
 
 SAUCEURL = 'https://saucenao.com/search.php?\
-api_key=f2cddb0d913ab5135c6f848e1fe0b8c1a2a61ded\
+api_key=fa214bae1efdc7940cf1e7f44d6fac90d3841a1c\
 &output_type=2&\
 testmode=1&\
 dbmaski=32768&\
 db=5&\
 numres=5&\
 url='
-
-'''
-https://saucenao.com/search.php?apikey=f2cddb0d913ab5135c6f848e1fe0b8c1a2a61ded&output_type=2&testmode=1&dbmaski=32768&db=5&numres=5&url=https://gchat.qpic.cn/gchatpic_new/1320265781/3967125332-3219453593-6C581F8F95E9E20AD31D2CB632FA08C7/0?term=3,subType=0
-'''
 
 bot = nonebot.get_bot()
 

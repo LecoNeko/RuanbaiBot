@@ -1,3 +1,4 @@
+from sre_constants import REPEAT
 from nonebot.default_config import *
 
 NICKNAME = ['软白']
@@ -8,8 +9,9 @@ SUPERUSERS = 1320265781
 DELETE_TIME = 60
 BLACKLIST = {}
 WHITEGROUPLIST = {940748730, 477125332}
-
-
+#R18LIST = {940748730, 477125332}
+SESSION_RUNNING_EXPRESSION = ''
+REPEAT_TIME = 3
 
 
 
