@@ -1,3 +1,4 @@
+import httpx
 from nonebot import on_command, CommandSession, MessageSegment
 import requests
 from random import choice
@@ -9,7 +10,7 @@ HEADER = {
 }
 
 # setu
-def getSetuInfo(keyword: str):
+async def getSetuInfo(keyword: str):
     '''
     从消息中提取涩图tag并获取涩图的info
     '''
@@ -44,7 +45,8 @@ def getSetuInfo(keyword: str):
 
     #print(url)
     try:
-        res = requests.get(url, timeout=15)
+        async with httpx.AsyncClient() as client:
+            res = await client.get(url=url)
         js = res.json()
         pid = str(js['data'][0]['pid'])
         uid = str(js['data'][0]['uid'])
@@ -109,7 +111,7 @@ def dealNone(dic: dict):
             dic[key] = 'None'
     return dic
 
-def saucenaoSearch(urllist: list, SAUCEURL: str):
+async def saucenaoSearch(urllist: list, SAUCEURL: str):
     '''
     传入图片list及SAUCE已经拼接好参数的url进行图片检索
     返回图片检索得到的一些基本信息list
@@ -118,11 +120,17 @@ def saucenaoSearch(urllist: list, SAUCEURL: str):
     '''
     info = []
     for img in urllist:
-        #print("\n\n\n")
+        print("\n\n\n")
         try:
-            data = requests.get(SAUCEURL + img, timeout=7).json()
+            print(SAUCEURL + img)
+            async with httpx.AsyncClient() as client:
+                data = await client.get(url= SAUCEURL + img)
+            #data = requests.get(SAUCEURL + img, headers=HEADER).json()
+            data = data.json()
+            #print(data)
             #print(data["results"])
-        except:
+        except BaseException as e:
+            print(e)
             return None
         res = data.get("results", "result")
 

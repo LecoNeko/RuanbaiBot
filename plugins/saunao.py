@@ -28,7 +28,8 @@ async def _(event):
         await bot.send(event, message='正在搜索。。。')
         CQimg = getCQimgInMesg(str(event['message']))
         url = getImgUrlInCQ(CQimg)
-        imginfo = saucenaoSearch(url, SAUCEURL)
+        imginfo = await saucenaoSearch(url, SAUCEURL)
+        #print(imginfo)
         if not imginfo :
             await bot.send(event, "没有找到QAQ")
             return
