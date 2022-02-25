@@ -16,6 +16,7 @@ async def _(session: CommandSession):
     #        await session.send('SETU只在允许的群内发送QAQ')
     #        return
     
+    R18 = 1
     if session.event['message_type'] == 'group':
         if session.event.group_id in WHITEGROUPLIST:
             R18 = 1

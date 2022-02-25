@@ -1,8 +1,12 @@
 import httpx
+import json
 from nonebot import on_command, CommandSession, MessageSegment
 import requests
 from random import choice
 import re
+from io import BytesIO
+import os
+from PIL import Image
 
 SETUAPI = r"https://api.lolicon.app/setu/v2?"
 HEADER = {
@@ -12,6 +16,31 @@ HEADER = {
 async def async_request(url):
     async with httpx.AsyncClient() as client:
         res = await client.get(url)
+    return res
+
+def rmsgToJson(msg: str)->dict:
+    if not msg:
+        return None
+    msg = msg[msg.find('data')+5:]
+    i = len(msg)-1
+    j = 0
+    while msg[i]!= '}':
+        i-=1
+        j-=1
+    msg = msg[:j]
+    msg = re.sub('&#44;', ',', msg)
+    msg = re.sub(';', ',', msg)
+    print('\n\n\n')
+    print(msg)
+    print('\n\n\n\n\n')
+    return json.loads(msg)
+
+
+def gene_Aa_ReStr(String:str):
+    res = ''
+    for i in String:
+        #print(type(i))
+        res = res +'['+ i.lower() + i.upper() + ']'
     return res
 
 # setu
@@ -136,7 +165,7 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
             print(e)
             return None
         res = data.get("results", "result")
-
+        first_search_res = 0
         for i in range(3):
             data = res[i]
             #print("\n\n\n")
@@ -144,7 +173,8 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
             similarity = data["header"]["similarity"]
             thumbnail = data["header"]["thumbnail"] # 缩略图 : url
 
-            if float(similarity) >= 70:
+            if float(similarity) >= 70 or first_search_res == 0:
+                first_search_res = 1
                 tmp = {}
                 tmp["similarity"] = similarity
                 tmp["thumbnail"] = thumbnail
@@ -164,6 +194,46 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
     #print(info)
     #print("\n\n\n")
     return info
+
+
+# Codeforces
+
+CFURL = r'https://codeforces.com/api/user.info?handles='
+
+def imgsrcToPILobj(imgsrc):
+    imgres = requests.get(imgsrc)
+    img = Image.open(BytesIO(imgres.content))
+    return img
+
+async def CodeforcesInfo(User:str):
+    res = await async_request(CFURL + User)
+    res = res.json()
+    if not res or res['status']!='OK':
+        return '网络错误'
+    res = res['result'][0]
+    cfInfo = {}
+    cfInfo['name'] = res.get('handle', None)
+    cfInfo['country'] = res.get('country', None)
+    cfInfo['city'] = res.get('city', None)
+    cfInfo['rating'] = res.get('rating', None)
+    cfInfo['rank'] = res.get('rank', None)
+    cfInfo['maxRating'] = res.get('maxRating', None)
+    cfInfo['maxRank'] = res.get('maxRank', None)
+
+    # 头像缩略图
+    imgsrc = res['titlePhoto']
+    img = imgsrcToPILobj(imgsrc)
+    base_width = 50
+    height = int(img.size[1] * base_width / float(img.size[0]))
+    thumbnail = img.resize((base_width, height), Image.ANTIALIAS)
+    thumbnail_path = os.path.join(os.path.dirname(__file__),'temp')
+    thumbnail_path = os.path.join(thumbnail_path,'cfTitlephoto.jpg')
+    thumbnail.save(thumbnail_path)
+    cfInfo['titlePhoto'] = '[CQ:image,file=file:///' + thumbnail_path.replace('\\','/') + ']'
+    return cfInfo
+    
+
+
 
         
 
