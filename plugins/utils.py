@@ -196,9 +196,13 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
     return info
 
 
+
+
+
 # Codeforces
 
-CFURL = r'https://codeforces.com/api/user.info?handles='
+CFINFOURL = r'https://codeforces.com/api/user.info?handles='
+CFRATINGURL = r'https://codeforces.com/api/user.rating?handle='
 
 def imgsrcToPILobj(imgsrc):
     imgres = requests.get(imgsrc)
@@ -206,10 +210,10 @@ def imgsrcToPILobj(imgsrc):
     return img
 
 async def CodeforcesInfo(User:str):
-    res = await async_request(CFURL + User)
+    res = await async_request(CFINFOURL + User)
     res = res.json()
     if not res or res['status']!='OK':
-        return '网络错误'
+        return '查询失败QAQ'
     res = res['result'][0]
     cfInfo = {}
     cfInfo['name'] = res.get('handle', None)
@@ -232,10 +236,37 @@ async def CodeforcesInfo(User:str):
     cfInfo['titlePhoto'] = '[CQ:image,file=file:///' + thumbnail_path.replace('\\','/') + ']'
     return cfInfo
     
-
-
-
-        
+async def CodeforcesRating(User:str, cnt:int):
+    res = await async_request(CFRATINGURL + User)
+    res = res.json()
+    if not res or res['status']!='OK':
+        return '查询失败QAQ'
+    res = res['result']
+    res = sorted(res, key = lambda x : x['contestId'], reverse=True)
+    now = min(len(res), cnt) - 1
+    ans = '最近' + str(now+1) + '场的'
+    totalchange = res[0]['newRating'] - res[now]['oldRating']
+    
+    ans += '总rating变化: ' + str(totalchange) + '\n' + '上分的场次'
+    if now > 4:
+        ans += '(取最近的5场)'
+    ans += ': \n'
+    now = min(4, now)
+    banzhuan = 1
+    while now >= 0:
+        if res[now]['newRating'] - res[now]['oldRating'] > 0:
+            banzhuan = 0
+            ans += res[now]['contestName'] + ' ' +\
+                 str(res[now]['oldRating']) + ' -> ' + str(res[now]['newRating'])
+            if now != 0:
+                ans += '\n'
+        now -= 1
+    if banzhuan == 1:
+        if len(res) >= 5:
+            ans += '打ACM也就图一乐，早点找个电子厂上班吧'
+        else:
+            ans += 'return 下分'
+    return ans
 
 
 
