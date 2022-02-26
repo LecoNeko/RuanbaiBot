@@ -30,9 +30,9 @@ def rmsgToJson(msg: str)->dict:
     msg = msg[:j]
     msg = re.sub('&#44;', ',', msg)
     msg = re.sub(';', ',', msg)
-    print('\n\n\n')
-    print(msg)
-    print('\n\n\n\n\n')
+    #print('\n\n\n')
+    #print(msg)
+    #print('\n\n\n\n\n')
     return json.loads(msg)
 
 
@@ -203,6 +203,7 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
 
 CFINFOURL = r'https://codeforces.com/api/user.info?handles='
 CFRATINGURL = r'https://codeforces.com/api/user.rating?handle='
+CFSTATUS = r'https://codeforces.com/api/user.status?from=1&count={}&handle='
 
 def imgsrcToPILobj(imgsrc):
     imgres = requests.get(imgsrc)
@@ -249,7 +250,7 @@ async def CodeforcesRating(User:str, cnt:int):
     
     ans += '总rating变化: ' + str(totalchange) + '\n' + '上分的场次'
     if now > 4:
-        ans += '(取最近的5场)'
+        ans += '(取最近5场中的)'
     ans += ': \n'
     now = min(4, now)
     banzhuan = 1
@@ -268,5 +269,39 @@ async def CodeforcesRating(User:str, cnt:int):
             ans += 'return 下分'
     return ans
 
+async def CodeforcesLastSubmission(User: str):
+    res = await async_request(CFSTATUS.format('1') + User)
+    res = res.json()
+    if not res or res['status']!='OK':
+        return '查询失败QAQ'
+    res = res['result'][0]
+    name = res['problem']['index'] + '——'+ res['problem']['name']
+    score = res['problem'].get('rating', 0)
+    tag = str(res['problem']['tags'])
+    Language = res['programmingLanguage']
+    verdict = res['verdict'].replace('OK', 'ACCEPT')
+    ans = '上次提交的题目是：'+ name +'(rating = ' + str(score) + ')\n'
+    ans += '语言：' + Language + '\n'
+    ans += '结果：' + verdict
+    return ans
 
-
+async def CodeforcesStatus(User: str):
+    res = await async_request(CFSTATUS.format('5') + User)
+    res = res.json()
+    if not res or res['status']!='OK':
+        return '查询失败QAQ'
+    Res = res['result']
+    ed = min(5, len(Res))
+    ans = ''
+    for i in range(ed):
+        res = Res[i]
+        name = res['problem']['index'] + '——'+ res['problem']['name']
+        score = res['problem'].get('rating', 0)
+        #tag = str(res['problem']['tags'])
+        #Language = res['programmingLanguage']
+        verdict = res['verdict'].replace('OK', 'ACCEPT')
+        ans += name +'(rating = ' + str(score) + ')\n'
+        ans += '结果：' + verdict
+        if i != ed - 1:
+            ans += '\n'
+    return ans

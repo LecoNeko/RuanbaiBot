@@ -38,6 +38,14 @@ async def _(session: CommandSession):
             cnt = int(cur_text[2])
         ans = await CodeforcesRating(User, cnt)
         await session.send(ans)
+    elif re.fullmatch(gene_Aa_ReStr('lastsb'), Method):
+        User = cur_text[1]
+        ans = await CodeforcesLastSubmission(User)
+        await session.send(ans)
+    elif re.fullmatch(gene_Aa_ReStr('status'), Method):
+        User = cur_text[1]
+        ans = await CodeforcesStatus(User)
+        await session.send(ans)
 
 
 
