@@ -46,6 +46,11 @@ async def _(session: CommandSession):
         User = cur_text[1]
         ans = await CodeforcesStatus(User)
         await session.send(ans)
+    elif re.fullmatch(gene_Aa_ReStr('rect'), Method):
+        ans = await CodeforcesRecentContests()
+        for item in ans:
+            await session.send(item)
+        
 
 
 

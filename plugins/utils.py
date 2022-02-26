@@ -1,3 +1,4 @@
+from time import localtime
 import httpx
 import json
 from nonebot import on_command, CommandSession, MessageSegment
@@ -204,6 +205,8 @@ async def saucenaoSearch(urllist: list, SAUCEURL: str):
 CFINFOURL = r'https://codeforces.com/api/user.info?handles='
 CFRATINGURL = r'https://codeforces.com/api/user.rating?handle='
 CFSTATUS = r'https://codeforces.com/api/user.status?from=1&count={}&handle='
+CFCONTESTS = r'https://codeforces.com/api/contest.list?gym=false'
+
 
 def imgsrcToPILobj(imgsrc):
     imgres = requests.get(imgsrc)
@@ -305,3 +308,33 @@ async def CodeforcesStatus(User: str):
         if i != ed - 1:
             ans += '\n'
     return ans
+
+
+WEEKDAY = ' 一二三四五六日'
+
+async def CodeforcesRecentContests():
+    res = await async_request(CFCONTESTS)
+    res = res.json()
+    if not res or res['status']!='OK':
+        return '查询失败QAQ'
+    res = res['result']
+    ans = ['最近未开始的比赛有：\n']
+    
+    for item in res:
+        if item.get('phase')=='FINISHED':
+            break
+        name = item['name']
+        durationSeconds = float(item['durationSeconds']) / 60.0
+        startTime = localtime(item['startTimeSeconds'])
+        year = startTime[0]
+        month = startTime[1]
+        day = startTime[2]
+        hour = startTime[3]
+        min = startTime[4]
+        wday = startTime[6]
+        temp = name + '\n' + '比赛时长：' + str(durationSeconds) + 'mins\n'\
+            + '日期：{}年{}月{}日{}时{}分  星期{}'.format(\
+                year, month, day, hour, min, WEEKDAY[wday])
+        ans.append(temp)
+    return ans
+        

@@ -11,17 +11,12 @@ async def _(event: aiocqhttp.Event):
 
 @bot.on_message()
 async def grouprepeat(event):
-    #print(event)
     if event['message_type'] != 'group':
         return
     group_id = str(event['group_id'])
     msg = event['message']
-    #print('\n\n\n')
-    #print(msg)
     if not group_stat.get(group_id) or msg != group_stat.get(group_id)[0]:
         group_stat[group_id] = [msg, 0]
     group_stat[group_id][1] += 1
-    #print(group_stat[group_id][1])
-    #print(group_stat[group_id][1] == config.REPEAT_TIME)
     if group_stat[group_id][1] == config.REPEAT_TIME:
         await bot.send(event, msg)
