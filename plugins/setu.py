@@ -23,13 +23,31 @@ async def _(session: CommandSession):
         else:
             R18 = 0
 
-    setulist = await getSetuInfo(session.current_arg_text.strip(), R18)
-    if not setulist:
-        await session.send("没有找到涩图QAQ")
-        return
-    #print(setulist)
-    #print('\n\n\n')
-    for ans in setulist:
+    keyword = session.current_arg_text.strip()
+
+    tmp = re.findall('来.*张',keyword)
+    if len(tmp):
+        tmp = tmp[0][1:-1]
+        try:
+            cnt = int(tmp)
+        except:
+            cnt = 1
+        ed = 1
+        while keyword[ed]!='张':
+            ed+=1
+        keyword = keyword[0:1] + keyword[ed:]
+        cnt = min(5, max(1, cnt))
+    first_in = True
+    while cnt > 0:
+        ans = await getSetuInfo(keyword, R18)
+        if not ans:
+            if first_in == True: 
+                await session.send("没有找到涩图QAQ")
+                return
+            continue
+        first_in = False
+        #print(setulist)
+        #print('\n\n\n')
         await session.send(ans[0], at_sender = True)
         setu = setuMesg(ans[1])
         R18 = ans[2]
@@ -44,6 +62,7 @@ async def _(session: CommandSession):
                 await asyncio.sleep(HDELETET_TIME)
             await session.bot.delete_msg(
                 message_id = int(setu_message_id['message_id']))
+        cnt -= 1
 
 
 

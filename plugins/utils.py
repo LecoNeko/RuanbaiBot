@@ -43,29 +43,37 @@ def gene_Aa_ReStr(String:str):
         res = res +'['+ i.lower() + i.upper() + ']'
     return res
 
+def imgsrcToPILobj(imgsrc):
+    imgres = requests.get(imgsrc)
+    img = Image.open(BytesIO(imgres.content))
+    return img
+
+def makeThumbnail(img: Image, base_width, filename):
+    '''
+    等比例缩放图片
+    '''
+    height = int(img.size[1] * base_width / float(img.size[0]))
+    thumbnail = img.resize((base_width, height), Image.ANTIALIAS)
+    thumbnail_path = os.path.join(os.path.dirname(__file__),'temp')
+    thumbnail_path = os.path.join(thumbnail_path, filename)
+    thumbnail.save(thumbnail_path)
+    return thumbnail_path.replace('\\','/')
+
+def MessageLocalImage(path:str):
+    '''
+    转换为本地文件传输协议的CQ码
+    '''
+    # path.replace('\\','/')
+    return '[CQ:image,file=file:///' + path + ']'
+
+
+
+
 # setu
 async def getSetuInfo(keyword: str, R18flag: int):
     '''
     从消息中提取涩图tag并获取涩图的info
     '''
-
-    tmp = re.findall('来.*张',keyword)
-    #print("\n\n\n")
-    if len(tmp):
-        tmp = tmp[0][1:-1]
-        try:
-            cnt = int(tmp)
-        except:
-            cnt = 1
-        ed = 1
-        while keyword[ed]!='张':
-            ed+=1
-        keyword = keyword[0:1] + keyword[ed:]
-        cnt = min(5, max(1, cnt))
-    
-    #print(cnt)
-    #print(keyword)
-
     if keyword=='炼铜' or keyword=='重工业':
         url = SETUAPI + 'tag=萝莉|幼女'
     else:
@@ -97,24 +105,20 @@ async def getSetuInfo(keyword: str, R18flag: int):
             first = 0
 
     
-    setulist = []
-    while cnt > 0:
-        #print(url)
-        #print('\n')
-        try:
-            res = await async_request(url=url)
-            js = res.json()
-            pid = str(js['data'][0]['pid'])
-            uid = str(js['data'][0]['uid'])
-            author = str(js['data'][0]['author'])
-            urlmsg = "https://pixiv.net/i/" + pid
-        except:
-            return None
-        ans = '作者：' + author + '\n链接：' + urlmsg
-        setulist.append([ans, js['data'][0]['urls']['original'].replace('cat', 're', 1), r18])
-        cnt-=1
+    #print(url)
+    #print('\n')
+    try:
+        res = await async_request(url=url)
+        js = res.json()
+        pid = str(js['data'][0]['pid'])
+        uid = str(js['data'][0]['uid'])
+        author = str(js['data'][0]['author'])
+        urlmsg = "https://pixiv.net/i/" + pid
+    except:
+        return None
+    ans = '作者：' + author + '\n链接：' + urlmsg
 
-    return setulist
+    return [ans, js['data'][0]['urls']['original'].replace('cat', 're', 1), r18]
 
 
 def pidGetPixivurl(pid):
@@ -235,12 +239,6 @@ CFRATINGURL = r'https://codeforces.com/api/user.rating?handle='
 CFSTATUS = r'https://codeforces.com/api/user.status?from=1&count={}&handle='
 CFCONTESTS = r'https://codeforces.com/api/contest.list?gym=false'
 
-
-def imgsrcToPILobj(imgsrc):
-    imgres = requests.get(imgsrc)
-    img = Image.open(BytesIO(imgres.content))
-    return img
-
 async def CodeforcesInfo(User:str):
     res = await async_request(CFINFOURL + User)
     res = res.json()
@@ -259,15 +257,10 @@ async def CodeforcesInfo(User:str):
     # 头像缩略图
     imgsrc = res['titlePhoto']
     img = imgsrcToPILobj(imgsrc)
-    base_width = 50
-    height = int(img.size[1] * base_width / float(img.size[0]))
-    thumbnail = img.resize((base_width, height), Image.ANTIALIAS)
-    thumbnail_path = os.path.join(os.path.dirname(__file__),'temp')
-    thumbnail_path = os.path.join(thumbnail_path,'cfTitlephoto.jpg')
-    thumbnail.save(thumbnail_path)
-    cfInfo['titlePhoto'] = '[CQ:image,file=file:///' + thumbnail_path.replace('\\','/') + ']'
+    thumbnail_path = makeThumbnail(img, 50, 'cfTitlephoto.jpg')
+    cfInfo['titlePhoto'] = MessageLocalImage(thumbnail_path)
     return cfInfo
-    
+
 async def CodeforcesRating(User:str, cnt:int):
     res = await async_request(CFRATINGURL + User)
     res = res.json()
