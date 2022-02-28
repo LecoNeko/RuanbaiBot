@@ -3,7 +3,6 @@ import httpx
 import json
 from nonebot import on_command, CommandSession, MessageSegment
 import requests
-from random import choice
 import re
 from io import BytesIO
 import os
@@ -49,21 +48,39 @@ async def getSetuInfo(keyword: str, R18flag: int):
     '''
     从消息中提取涩图tag并获取涩图的info
     '''
-    if keyword[0]=='!':
-        keyword = keyword[1:-2]
+
+    tmp = re.findall('来.*张',keyword)
+    #print("\n\n\n")
+    if len(tmp):
+        tmp = tmp[0][1:-1]
+        try:
+            cnt = int(tmp)
+        except:
+            cnt = 1
+        ed = 1
+        while keyword[ed]!='张':
+            ed+=1
+        keyword = keyword[0:1] + keyword[ed:]
+        cnt = min(5, max(1, cnt))
+    
+    #print(cnt)
+    #print(keyword)
+
+    if keyword=='炼铜' or keyword=='重工业':
+        url = SETUAPI + 'tag=萝莉|幼女'
     else:
         keyword = keyword[2:-2]
-    tmp = re.sub('[Rr]18', '', keyword)
-    r18 = R18flag
+        tmp = re.sub('[Rr]18', '', keyword)
+        r18 = R18flag
 
-    if len(keyword) == len(tmp):
-        r18 = 0
-    else:
-        keyword = tmp
-    keyword = keyword.split('&amp;')
-    # print(type(keyword))
-    url = SETUAPI
-    url = url + 'r18=' + str(r18) + '&'
+        if len(keyword) == len(tmp):
+            r18 = 0
+        else:
+            keyword = tmp
+        keyword = keyword.split('&amp;')
+        # print(type(keyword))
+        url = SETUAPI
+        url = url + 'r18=' + str(r18) + '&'
     last = 0
     for iter in keyword:
         if not last:
@@ -79,18 +96,25 @@ async def getSetuInfo(keyword: str, R18flag: int):
             url = url + i
             first = 0
 
-    #print(url)
-    try:
-        res = await async_request(url=url)
-        js = res.json()
-        pid = str(js['data'][0]['pid'])
-        uid = str(js['data'][0]['uid'])
-        author = str(js['data'][0]['author'])
-        urlmsg = "https://pixiv.net/i/" + pid
-    except:
-        return None
-    ans = '作者：' + author + '\n链接：' + urlmsg
-    return [ans, js['data'][0]['urls']['original'].replace('cat', 're', 1), r18]
+    
+    setulist = []
+    while cnt > 0:
+        #print(url)
+        #print('\n')
+        try:
+            res = await async_request(url=url)
+            js = res.json()
+            pid = str(js['data'][0]['pid'])
+            uid = str(js['data'][0]['uid'])
+            author = str(js['data'][0]['author'])
+            urlmsg = "https://pixiv.net/i/" + pid
+        except:
+            return None
+        ans = '作者：' + author + '\n链接：' + urlmsg
+        setulist.append([ans, js['data'][0]['urls']['original'].replace('cat', 're', 1), r18])
+        cnt-=1
+
+    return setulist
 
 
 def pidGetPixivurl(pid):
@@ -111,6 +135,10 @@ def setuMesg(setu_url: str):
     print(setu_url)
     return MessageSegment.image(setu_url)
     
+
+
+
+
 
 # saucenao
 
