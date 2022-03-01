@@ -10,6 +10,9 @@ Temporary set '!help' under:
 * **Setu**: send a random taged Setu to sender. R18 only can be applied at WHITEGROUPLIST
 
 	* eg:'[bot nickname] + 来张 + (r18) + [tag1 & tag2 | tag3 |tag4]  + 涩图'
+	* 软白来张涩图
+	* 软白来5张涩图
+	* 软白来张白丝&萝莉涩图
 
 
 * **PictureSearcher**: Searching the most similar 3 anime picture from saucenao and sending them to sender
