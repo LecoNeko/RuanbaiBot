@@ -19,7 +19,6 @@ Temporary set '!help' under:
 
 	* eg: '@bot + a series of ANIME picture'
 
-
 ### CodeForces
 
 Stared with '!cf' to apply the function
@@ -28,21 +27,33 @@ Stared with '!cf' to apply the function
 * info: query rating, rank, maxRating, maxRank of 'cfId'
 
 	* eg: '!cf info [cfId]'
+	* !cf info RBpencil
 
 
 * rtcg: get last 'cnt' contest rating change of 'cfId'
 
 	* eg:'!cf rtcg [cfId] ([cnt])'
+	* !cf rtcg RBpencil 5
+	* !cf rtcg RBpencil
 
 
 * lastsb: last submission statue of 'cfId':
 
 	* eg:'!cf lastsb [cfId]'
+	* !cf lastsb RBpencil
 
 
 * statues: show last 5 submission statue of 'cfId'
 
 	* eg:'!cf statues [cfId]'
+	* !cf statues RBpencil
+
+* contest: show coming contests
+	* eg:'!cf rect'
 
 
+感谢
+----
+[nonebot](https://github.com/nonebot/nonebot)
+[go-cqhttp](https://github.com/Mrs4s/go-cqhttp)
 
