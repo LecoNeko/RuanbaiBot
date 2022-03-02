@@ -1,6 +1,7 @@
 import asyncio
 import time
 from nonebot import on_command, CommandSession
+import random
 from plugins.utils import *
 from config import HDELETET_TIME, WHITEGROUPLIST, BLACKLIST, DELETE_TIME
 
@@ -50,6 +51,7 @@ async def _(session: CommandSession):
     #        return
 
     R18 = 1
+    cnt = 1
     if session.event['message_type'] == 'group':
         if session.event.group_id in WHITEGROUPLIST:
             R18 = 1
@@ -99,3 +101,16 @@ async def _(session: CommandSession):
             asyncio.gather(setuDelete(session, setu_message_id, R18))
 
         cnt -= 1
+
+
+@on_command(name='drogonpic', patterns='来一?[点份张][龍龙龍]图', privileged=True)
+async def _(session: CommandSession):
+    path = os.path.join(os.path.dirname(__file__), 'pic_src', 'drogon')
+    filenames = os.listdir(path)
+    file = os.path.join(path, filenames[random.randint(0, len(filenames)-1)])
+    print('\n\n\n')
+    print(file)
+    img = MessageLocalImage(file)
+    print(img)
+    await session.send(img)
+    #print(filenames)

@@ -63,9 +63,17 @@ def MessageLocalImage(path:str):
     '''
     转换为本地文件传输协议的CQ码
     '''
+    path = path.replace('\\','/')
     # path.replace('\\','/')
     return '[CQ:image,file=file:///' + path + ']'
 
+def pathRenameByRange(path: str):
+    filenames = os.listdir(path)
+    siz = len(filenames)
+    for i in range(siz):
+        file = os.path.join(path, filenames[i])
+        filename, filetype = os.path.splitext(file)
+        os.rename(file, os.path.join(path,str(i))+str(filetype))
 
 
 
@@ -74,13 +82,16 @@ async def getSetuInfo(keyword: str, R18flag: int):
     '''
     从消息中提取涩图tag并获取涩图的info
     '''
+    #print('\n')
+    #print(keyword)
+    r18 = R18flag
     if keyword=='炼铜' or keyword=='重工业':
+        tmp = re.sub('[Rr]18', '', keyword)
         url = SETUAPI + 'tag=萝莉|幼女'
+        r18 = 0
     else:
         keyword = keyword[2:-2]
         tmp = re.sub('[Rr]18', '', keyword)
-        r18 = R18flag
-
         if len(keyword) == len(tmp):
             r18 = 0
         else:
@@ -89,24 +100,21 @@ async def getSetuInfo(keyword: str, R18flag: int):
         # print(type(keyword))
         url = SETUAPI
         url = url + 'r18=' + str(r18) + '&'
-    last = 0
-    for iter in keyword:
-        if not last:
-            last = 1
-        else:
-            url = url + '&'
-        url =url + "tag="
-        item = iter.split('|')
-        first = 1
-        for i in item:
-            if not first:
-                url = url + '|'
-            url = url + i
-            first = 0
+        last = 0
+        for iter in keyword:
+            if not last:
+                last = 1
+            else:
+                url = url + '&'
+            url =url + "tag="
+            item = iter.split('|')
+            first = 1
+            for i in item:
+                if not first:
+                    url = url + '|'
+                url = url + i
+                first = 0
 
-    
-    #print(url)
-    #print('\n')
     try:
         res = await async_request(url=url)
         js = res.json()
