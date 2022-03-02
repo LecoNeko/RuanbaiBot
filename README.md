@@ -55,5 +55,7 @@ Stared with '!cf' to apply the function
 感谢
 ----
 [nonebot](https://github.com/nonebot/nonebot)
+
 [go-cqhttp](https://github.com/Mrs4s/go-cqhttp)
 
+[cq-picsearcher-bot](https://github.com/Tsuk1ko/cq-picsearcher-bot)
