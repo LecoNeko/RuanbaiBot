@@ -8,6 +8,8 @@ from io import BytesIO
 import os
 from PIL import Image
 
+from config import OSU_API_KEY
+
 SETUAPI = r"https://api.lolicon.app/setu/v2?"
 HEADER = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
@@ -366,4 +368,43 @@ async def CodeforcesRecentContests():
                 year, month, day, hour, min, WEEKDAY[wday])
         ans.append(temp)
     return ans
-        
+
+
+
+# Osu
+
+OSUAPIURL = 'https://osu.ppy.sh/api/'
+
+async def OsuInfo(User: str, mode: str):
+    if mode != '3':
+        return '当前只支持查询osu!mania模式QAQ'
+    url = OSUAPIURL + 'get_user'
+    para = {}
+    para['k'] = OSU_API_KEY
+    para['u'] = User
+    para['m'] = mode
+    para['type'] = 'string'
+    res = requests.get(url=url, params=para)
+    res = res.json()
+    res = res[0]
+    #print('\n\n\n')
+    #print(res)
+    user_id = str(res['user_id'])
+    username = res['username']
+    playcount = res['playcount']
+    pp_raw = res['pp_raw']
+    country = res['country']
+    total_hours_played = round(float(res['total_seconds_played']) / 3600.0, 1)
+    pp_rank = res['pp_rank']
+    pp_country_rank = res['pp_country_rank']
+    titleimgurl = 'http://s.ppy.sh/a/' + user_id
+    img = imgsrcToPILobj(titleimgurl)
+    thumbnail_path = makeThumbnail(img, 150, 'osuTitlephoto.jpg')
+    titlethum = MessageLocalImage(thumbnail_path)
+    ans = titlethum + '\n'
+    ans += username + '\n'
+    ans += 'pp: ' + str(pp_raw) + '  排名:' + str(pp_rank) + '\n'
+    ans += '国家: ' + country +'  国内排名: ' + str(pp_country_rank) + '\n'
+    ans += '游戏次数: ' + str(playcount) + '  总时长: ' + str(total_hours_played) + '时'
+    return ans
+
