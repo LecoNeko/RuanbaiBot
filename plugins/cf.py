@@ -9,6 +9,19 @@ HEADER = {
 
 fk = '命令不合法'
 
+LUOGUPROBLEM = 'https://www.luogu.com.cn/problem/'
+
+getLimit = {'time': time.time(), 'cnt':0}
+
+def timeChecker():
+    if getLimit['time']-time.time() > 60:
+        getLimit['time'] = time.time()
+        getLimit['cnt'] = 0
+    if getLimit['cnt'] > 35:
+        return False
+    getLimit['cnt'] += 1
+    return True
+
 @on_command(name='cf', patterns=gene_Aa_ReStr('codeforces'), privileged = True)
 async def _(session: CommandSession):
     cur_text = session.current_arg_text.strip().split()
@@ -50,7 +63,19 @@ async def _(session: CommandSession):
         ans = await CodeforcesRecentContests()
         for item in ans:
             await session.send(item)
-        
+    elif re.fullmatch(gene_Aa_ReStr('pb'), Method):
+        if timeChecker() == False:
+            await session.send('请求过于频繁！请稍后再试试吧~')
+            return
+        name = str(cur_text[1])
+        if name[0].isdigit():
+            name = 'CF' + name
+        name = name.upper()
+        path = os.path.join(os.path.dirname(__file__), 'temp')
+        path = os.path.join(path, 'luogu.png')
+        getWebImage(LUOGUPROBLEM + name, path)
+        path = path.replace('\\','/')
+        await session.send(MessageLocalImage(path))
 
 
 

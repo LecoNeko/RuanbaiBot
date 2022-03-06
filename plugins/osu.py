@@ -38,7 +38,9 @@ async def _(session: CommandSession):
         if check_num(cur_text[-1]):
             mode = cur_text[-1]
             cur_text = cur_text[:-1]
-        User = cur_text[1:]
+        User = cur_text[1]
+        for i in cur_text[2:]:
+            User += ' ' + i
         Info = await OsuInfo(User, mode)
         if not Info or Info == '网络错误':
             await session.send(Info)
@@ -51,7 +53,9 @@ async def _(session: CommandSession):
         if check_num(cur_text[-1]):
             mode = cur_text[-1]
             cur_text = cur_text[:-1]
-        User = cur_text[1:]
+        User = cur_text[1]
+        for i in cur_text[2:]:
+            User += ' ' + i
         Info = await OsuRe(User, mode)
         if not Info or Info == '网络错误':
             await session.send(Info)

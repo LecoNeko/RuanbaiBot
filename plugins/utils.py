@@ -1,6 +1,8 @@
 from time import localtime
 import httpx
 import json
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from nonebot import on_command, CommandSession, MessageSegment
 import requests
 import re
@@ -15,6 +17,34 @@ SETUAPI = r"https://api.lolicon.app/setu/v2?"
 HEADER = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"
 }
+
+
+def getWebImage(url:str, pic_path:str):
+    '''
+    抓取网站全屏截图
+    '''
+#chromedriver的路径
+    chromedriver = r"C:\Program Files\Google\Chrome\Application\chromedriver.exe"
+    os.environ["webdriver.chrome.driver"] = chromedriver
+#设置chrome开启的模式，headless就是无界面模式
+#一定要使用这个模式，不然截不了全页面，只能截到你电脑的高度
+    chrome_options = Options()
+    chrome_options.add_argument('headless')
+    driver = webdriver.Chrome(chromedriver,chrome_options=chrome_options)
+#控制浏览器写入并转到链接
+    driver.get(url)
+    time.sleep(1)
+#接下来是全屏的关键，用js获取页面的宽高，如果有其他需要用js的部分也可以用这个方法
+    width = driver.execute_script("return document.documentElement.scrollWidth")
+    height = driver.execute_script("return document.documentElement.scrollHeight")
+    print(width,height)
+#将浏览器的宽高设置成刚刚获取的宽高
+    driver.set_window_size(width, height)
+    time.sleep(1)
+#截图并关掉浏览器
+    driver.save_screenshot(pic_path)
+    driver.close()
+
 
 async def async_request(url):
     async with httpx.AsyncClient() as client:
@@ -412,18 +442,18 @@ async def OsuInfo(User: str, mode: str):
 BEATMAPIMG = 'https://assets.ppy.sh/beatmaps/{}/covers/cover.jpg'
 OSUGETUSERRE = 'https://osu.ppy.sh/api/get_user_recent'
 OSUGETBEATMAP = 'https://osu.ppy.sh/api/get_beatmaps'
-accRate = [100/6,100/3,100/3*2,100,100]
+accRate = [100/6,100/3,100/3*2,100,100,0]
 
 
 def getAcc(cnt:list):
     tot = 0
     iter = 0
-    while iter < 5:
+    while iter < 6:
         tot += int(cnt[iter])
         iter += 1
     iter = 0
     ans = 0
-    while iter < 5:
+    while iter < 6:
         ans += float(cnt[iter]) / tot * accRate[iter]
         iter += 1
     return ans
@@ -441,12 +471,13 @@ async def OsuRe(User: str, mode: int):
     score = res['score']
     beatmap_id = res['beatmap_id']
     maxcombo = res['maxcombo']
+    miss = res['countmiss']
     cnt50 = res['count50']
     cnt100 = res['count100']
     cnt200 = res['countkatu']
     cnt300 = res['count300']
     cntrgb = res['countgeki']
-    acc = getAcc([cnt50,cnt100,cnt200,cnt300,cntrgb])
+    acc = getAcc([cnt50,cnt100,cnt200,cnt300,cntrgb,miss])
     rank = res['rank']
     date = res['date']
     date = time.localtime(time.mktime(time.strptime(date, '%Y-%m-%d %H:%M:%S')) + 3600 * 8)

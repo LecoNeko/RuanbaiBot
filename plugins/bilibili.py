@@ -25,8 +25,10 @@ async def _(event):
         
         title = res['title']
         upz = res['owner']['name']
-        pic = MessageLocalImage(makeThumbnail(imgsrcToPILobj(res['pic']), 300, 'bilibili_temp.jpg'))
-
+        try:
+            pic = MessageLocalImage(makeThumbnail(imgsrcToPILobj(res['pic']), 300, 'bilibili_temp.png'))
+        except:
+            pic = ''
         stat = res['stat']
         view = stat['view']
         danmaku = stat['danmaku']
