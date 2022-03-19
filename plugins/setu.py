@@ -52,13 +52,15 @@ async def _(session: CommandSession):
 
     R18 = 1
     cnt = 1
+    keyword = session.current_arg_text.strip()
+
     if session.event['message_type'] == 'group':
-        if session.event.group_id in WHITEGROUPLIST:
-            R18 = 1
-        else:
+        if session.event.group_id not in WHITEGROUPLIST:
+            if len(re.findall('[Rr]18',keyword)) > 0:
+                await session.send('不可以涩涩！！！')
+                return
             R18 = 0
 
-    keyword = session.current_arg_text.strip()
 
     tmp = re.findall('来.*张', keyword)
     if len(tmp):
@@ -108,9 +110,60 @@ async def _(session: CommandSession):
     path = os.path.join(os.path.dirname(__file__), 'pic_src', 'drogon')
     filenames = os.listdir(path)
     file = os.path.join(path, filenames[random.randint(0, len(filenames)-1)])
-    print('\n\n\n')
-    print(file)
+    #print('\n\n\n')
+    #print(file)
     img = MessageLocalImage(file)
-    print(img)
+    #print(img)
     await session.send(img)
     #print(filenames)
+
+async def getSetuInfo(keyword: str, R18flag: int):
+    '''
+    从消息中提取涩图tag并获取涩图的info
+    '''
+    #print('\n')
+    #print(keyword)
+    r18 = R18flag
+    if keyword=='炼铜' or keyword=='重工业':
+        tmp = re.sub('[Rr]18', '', keyword)
+        url = SETUAPI + 'tag=萝莉|幼女'
+        r18 = 0
+    else:
+        keyword = keyword[2:-2]
+        tmp = re.sub('[Rr]18', '', keyword)
+        if len(keyword) == len(tmp):
+            r18 = 0
+        else:
+            keyword = tmp
+        keyword = keyword.split('&amp;')
+        # print(type(keyword))
+        url = SETUAPI
+        url = url + 'r18=' + str(r18) + '&'
+        last = 0
+        for iter in keyword:
+            if not last:
+                last = 1
+            else:
+                url = url + '&'
+            url =url + "tag="
+            item = iter.split('|')
+            first = 1
+            for i in item:
+                if not first:
+                    url = url + '|'
+                url = url + i
+                first = 0
+    #print(url)
+    try:
+        res = await async_request(url=url)
+        js = res.json()
+        pid = str(js['data'][0]['pid'])
+        uid = str(js['data'][0]['uid'])
+        author = str(js['data'][0]['author'])
+        urlmsg = "https://pixiv.net/i/" + pid
+    except:
+        return None
+    ans = '作者：' + author + '\n链接：' + urlmsg
+
+    return [ans, js['data'][0]['urls']['original'].replace('cat', 're', 1), r18]
+

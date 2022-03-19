@@ -1,4 +1,3 @@
-# ruanbaibot is on coding, most functions are placed in 'utils.py', it will be moved to the corresponding file in the future
 A test bot send Setu, Anime picture search, Group processing, Codeforces Info query and etc. 
 
 
