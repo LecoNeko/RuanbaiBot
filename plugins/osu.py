@@ -23,7 +23,7 @@ def check_num(s:str):
     return True
 
 
-@on_command(name='o', patterns=gene_Aa_ReStr('osu'), privileged = True)
+@on_command(name='o', patterns=gene_Aa_ReStr('osu'))
 async def _(session: CommandSession):
     if timeChecker() == False:
         await session.send('请求过于频繁！请稍后再试试吧~')

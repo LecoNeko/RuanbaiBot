@@ -62,9 +62,6 @@ def rmsgToJson(msg: str)->dict:
     msg = msg[:j]
     msg = re.sub('&#44;', ',', msg)
     msg = re.sub(';', ',', msg)
-    #print('\n\n\n')
-    #print(msg)
-    #print('\n\n\n\n\n')
     return json.loads(msg)
 
 

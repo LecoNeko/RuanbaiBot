@@ -1,6 +1,7 @@
 import asyncio
 from nonebot import on_command, CommandSession, Message
 from plugins.utils import *
+import random
 
 
 HEADER = {
@@ -14,6 +15,7 @@ CFINFOURL = r'https://codeforces.com/api/user.info?handles='
 CFRATINGURL = r'https://codeforces.com/api/user.rating?handle='
 CFSTATUS = r'https://codeforces.com/api/user.status?from=1&count={}&handle='
 CFCONTESTS = r'https://codeforces.com/api/contest.list?gym=false'
+CFPROBLEMS = r'https://codeforces.com/api/problemset.problems'
 OJHUNT = 'https://ojhunt.com/api/crawlers/'
 
 
@@ -47,9 +49,24 @@ async def _(session: CommandSession):
     ans = await countOJTotalProblemSolve(User)
     await session.send(ans)
 
+@on_command(name='题瘾犯了', patterns='来一?[点份].*题?')
+async def _(session: CommandSession):
+    cur_text = session.current_arg_text.strip()
+    tag = re.findall('[点份].*题?', cur_text)
+    if len(tag)>0:
+        tag = tag[0][1:]
+        if tag[-1]=='题':
+            tag = tag[:-1]
+    else:
+        tag = 'constructive algorithms'
+    
+    anslist = await addictedToAlgorithm(tag)
+    print(anslist)
+    for item in anslist:
+        await session.send(item)
 
 
-@on_command(name='cf', patterns=gene_Aa_ReStr('codeforces'), privileged = True, only_to_me=True)
+@on_command(name='cf', patterns=gene_Aa_ReStr('codeforces'), only_to_me=True)
 async def _(session: CommandSession):
     cur_text = session.current_arg_text.strip().split()
     Method = cur_text[0]
@@ -88,9 +105,11 @@ async def _(session: CommandSession):
         await session.send(ans)
     elif re.fullmatch(gene_Aa_ReStr('rect'), Method):
         ans = await CodeforcesRecentContests()
+        ans.reverse()
+        msg = "最近未开始的比赛有：\n"
         for item in ans:
-            print(item)
-            await session.send(item)
+            msg += item + '\n'
+        await session.send(msg[:-1])
     elif re.fullmatch(gene_Aa_ReStr('pb'), Method):
         if timeChecker() == False:
             await session.send('请求过于频繁！请稍后再试试吧~')
@@ -207,10 +226,10 @@ async def CodeforcesRecentContests():
     if not res or res['status']!='OK':
         return '查询失败QAQ'
     res = res['result']
-    ans = ['最近未开始的比赛有：\n']
+    ans = []
     
     for item in res:
-        print(item)
+        #print(item)
         if item.get('phase')=='FINISHED':
             break
         name = item['name']
@@ -301,3 +320,36 @@ async def countOJTotalProblemSolve(User):
     return ans
 
 
+
+async def addictedToAlgorithm(tag):
+    para = {}
+    para['tags'] = tag
+    res = await async_request(CFPROBLEMS, params=para)
+    res = res.json()
+    if not res or str(res.get('status')) !='OK':
+        return '查询失败QAQ'
+    res = res['result'].get('problems')
+
+    lrange = random.randint(0, len(res)-3)
+    rrange = lrange + 3
+
+    anslist = []
+
+    for item in res[lrange:rrange]:
+        contestId = str(item.get('contestId', ''))
+        index = item.get('index', '')
+        name = item.get('name', '')
+        rating = str(item.get('rating', ''))
+        tg = item.get('tags', '')
+        ans = index + '、' + name + '\n'
+        ans += 'Difficulty：' + rating +'\n'
+        ans += "Tags："
+        ans += tg[0]
+        for i in tg[1:]:
+            ans += ', ' + str(i) 
+        url = '\nhttps://codeforces.com/problemset/problem/'
+        url += contestId + '/' + index
+        anslist.append(ans + url)
+
+    return anslist
+        
