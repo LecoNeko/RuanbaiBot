@@ -4,19 +4,6 @@ A test bot send Setu, Anime picture search, Group processing, Codeforces Info qu
 Temporary set '!help' under:
 ----
 
-### Anime
-
-* **Setu**: send a random taged Setu to sender. R18 only can be applied at WHITEGROUPLIST
-
-	* eg:'[bot nickname] + 来张 + (r18) + [tag1 & tag2 | tag3 |tag4]  + 涩图'
-	* 软白来张涩图
-	* 软白来5张涩图
-	* 软白来张白丝&萝莉涩图
-
-
-* **PictureSearcher**: Searching the most similar 3 anime picture from saucenao and sending them to sender
-
-	* eg: '@bot + a series of ANIME picture'
 
 ### CodeForces
 
@@ -49,6 +36,27 @@ Stared with '!cf' to apply the function
 
 * contest: show coming contests
 	* eg:'!cf rect'
+
+* pb: 看看CF某道题在洛谷的题面
+	* eg:'!cf pb CF1641C'
+
+
+### OSU
+
+* **INFO**：!o info [userid] [mode]
+* **RECENTPLAY**: !o re [userid]
+
+
+### Anime
+
+* **Setu**: send a random taged Setu to sender. R18 only can be applied at WHITEGROUPLIST
+
+	* eg:'[bot nickname] + 来张 + (r18) + [tag1 & tag2 | tag3 |tag4]  + 涩图'
+
+* **PictureSearcher**: Searching the most similar 3 anime picture from saucenao and sending them to sender
+
+	* eg: '@bot + a series of ANIME picture'
+
 
 
 感谢
