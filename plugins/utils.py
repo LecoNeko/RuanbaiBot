@@ -7,7 +7,9 @@ from selenium.webdriver.chrome.options import Options
 from nonebot import on_command, CommandSession, MessageSegment
 import requests
 import re
+import random
 import time
+import numpy as np
 from io import BytesIO
 import os
 from PIL import Image
@@ -95,6 +97,18 @@ def MessageLocalImage(path:str):
     path = path.replace('\\','/')
     # path.replace('\\','/')
     return '[CQ:image,file=file:///' + path + ']'
+
+def antiImgBan(imgurl: str):
+    mat = np.array(imgsrcToPILobj(imgurl))
+    for i in range(3):
+        for j in range(mat.shape[0]):
+            mat[j,0,i] ^= 1
+    image = Image.fromarray(mat)
+    path = os.path.join(os.path.dirname(__file__),'temp')
+    filename = "tempsetu" + str(random.randint(0,10))
+    path = os.path.join(path, filename + ".png")
+    image.save(path)
+    return MessageLocalImage(path)
 
 def pathRenameByRange(path: str):
     filenames = os.listdir(path)

@@ -49,7 +49,7 @@ numHZ = {'一' : 1 ,'二' : 2, '三' : 3, '四' : 4, '五' : 5, '六' : 6, '七'
 on_running = [0]
 deletelist = []
 
-@on_command(name='涩涩', patterns='不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]图|再来[点份张]|看过了|炼铜|重工业', privileged=True)
+@on_command(name='涩涩', patterns='不够[涩瑟色]|[涩瑟色]图|来一?[点份张].*[涩瑟色]图|再来[点份张]|看过了|炼铜|重工业')
 async def _(session: CommandSession):
     # print(session.event)
     # if session.event['message_type'] == 'group' and session.event.group_id not in WHITEGROUPLIST\
@@ -63,9 +63,9 @@ async def _(session: CommandSession):
             except:
                 pass
         deletelist.clear()
-    if on_running[0] > 3:
-        await session.send("涩涩太频繁惹！请过一会再试试吧~")
-        return
+    #if on_running[0] > 3:
+    #    await session.send("涩涩太频繁惹！请过一会再试试吧~")
+    #    return
     on_running[0] += 1
 
     R18 = 1
@@ -116,8 +116,9 @@ async def _(session: CommandSession):
 
         first_in = False
         await session.send(ans[0], at_sender=True)
-        setu = setuMesg(ans[1])
+        setu = ans[1]
         R18 = ans[2]
+        setu = antiImgBan(setu)
         setu_message_id = await session.send(setu)
 
         # 仅撤回群组涩图

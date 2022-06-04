@@ -6,7 +6,7 @@ import config
 import random
 
 HELP_INFO_ALL =\
-'''一只软白写的软白~~~~
+'''一只软白写的软白~~~~~
 功能列表：
     * setu：no res
     * saucenao搜图：@软白 + 你要搜的图片
@@ -60,9 +60,9 @@ HELP_CF=\
 @on_command(name='帮助', patterns=gene_Aa_ReStr('help'), privileged = True, only_to_me=True)
 async def _(session: CommandSession):
     cur_text = session.current_arg_text.replace('help','').strip().split()
-    print(cur_text)
+    #print(cur_text)
     if(len(cur_text) == 0):
-        print(1)
+        #print(1)
         await session.send(HELP_INFO_ALL)
         return 
     Method = cur_text[0]
